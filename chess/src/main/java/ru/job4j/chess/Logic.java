@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * //TODO add comments.
+ * класс проверяет наличие фигур на пути передвижения текущей фигуры
  *
  * @author Petr Arsentev (parsentev@yandex.ru)
  * @version $Id$
@@ -17,23 +17,54 @@ public class Logic {
     private final Figure[] figures = new Figure[32];
     private int index = 0;
 
+    /**
+     * добавляет фигуру в хранилище
+     * @param figure
+     */
     public void add(Figure figure) {
         this.figures[this.index++] = figure;
     }
 
+    /**
+     * проверяет нет ли фигур на пути движения проверяемой фигуры и записывает новые координаты фигуры
+     * @param source
+     * @param dest
+     * @return
+     */
     public boolean move(Cell source, Cell dest) {
         boolean rst = false;
         int index = this.findBy(source);
         if (index != -1) {
-            Cell[] steps = this.figures[index].way(source, dest);
-            if (steps.length > 0 && steps[steps.length - 1].equals(dest)) {
-                rst = true;
-                this.figures[index] = this.figures[index].copy(dest);
+            try {
+                Cell[] steps = this.figures[index].way(source, dest);
+                if (steps.length > 0 && steps[steps.length - 1].equals(dest)) {
+                    boolean trigger = false;
+                    for(int i = 0; i < figures.length; i++) {
+                        for(int n = 0; n < steps.length; n++) {
+                            if(figures[i] != null && steps[n].ordinal() == figures[i].position().ordinal()) {
+                                trigger = true;
+                            }
+                        }
+                        if (trigger) break;
+                    }
+                    if (!trigger) {
+                        rst = true;
+                        this.figures[index] = this.figures[index].copy(dest);
+                    }
+
+                }
+            } catch (IllegalStateException ise) {
+                System.out.println(ise);
             }
+
+
         }
         return rst;
     }
 
+    /**
+     * очистка хранилища фигур
+     */
     public void clean() {
         for (int position = 0; position != this.figures.length; position++) {
             this.figures[position] = null;
@@ -41,6 +72,11 @@ public class Logic {
         this.index = 0;
     }
 
+    /**
+     * поиск фигуры с координатами cell  в хранилище
+     * @param cell
+     * @return
+     */
     private int findBy(Cell cell) {
         int rst = -1;
         for (int index = 0; index != this.figures.length; index++) {
