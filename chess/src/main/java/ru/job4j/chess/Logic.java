@@ -39,14 +39,12 @@ public class Logic {
                 Cell[] steps = this.figures[index].way(source, dest);
                 if (steps.length > 0 && steps[steps.length - 1].equals(dest)) {
                     boolean trigger = false;
-                    for(int i = 0; i < figures.length; i++) {
-                        for(int n = 0; n < steps.length; n++) {
-                            if(figures[i] != null && steps[n].ordinal() == figures[i].position().ordinal()) {
+                        for(int i = 0; i < steps.length; i++) {
+                            if(this.findBy(steps[i]) != -1) {
                                 trigger = true;
+                                break;
                             }
                         }
-                        if (trigger) break;
-                    }
                     if (!trigger) {
                         rst = true;
                         this.figures[index] = this.figures[index].copy(dest);
